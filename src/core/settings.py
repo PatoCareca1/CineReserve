@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users',
     'movies',
     'tickets',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -134,6 +135,14 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'CineReserve API',
+    'DESCRIPTION': 'API para reserva de ingressos de cinema com concorrência via Redis.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 from datetime import timedelta

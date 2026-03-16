@@ -43,23 +43,23 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 ### Core Requirements
 
-[ ] [TC.1] API Development: RESTful API using Python + Poetry + Django REST Framework.
+[X] [TC.1] API Development: RESTful API using Python + Poetry + Django REST Framework.
 
-[x] [TC.2] Authentication: JWT-based user authentication & secure session management.
+[X] [TC.2] Authentication: JWT-based user authentication & secure session management.
 
-[ ] [TC.3.1] Database: PostgreSQL with optimized normalized design.
+[X ] [TC.3.1] Database: PostgreSQL with optimized normalized design.
 
-[ ] [TC.3.2] Caching & Scalability: - [ ] Redis distributed lock for 10-minute temporary seat reservations.
+[X] [TC.3.2] Caching & Scalability: - [X] Redis distributed lock for 10-minute temporary seat reservations.
 
-[ ] Redis caching for popular sessions and movies.
+[X] Redis caching for popular sessions and movies.
 
 [X] [TC.4] Pagination: Applied to Movies, Sessions, and User Tickets endpoints.
 
 [ ] [TC.5] Testing: Comprehensive Unit testing covering functional and edge cases.
 
-[ ] [TC.6] Documentation: OpenAPI/Swagger detailed endpoints.
+[X] [TC.6] Documentation: OpenAPI/Swagger detailed endpoints.
 
-[ ] [TC.7] Docker: Dockerfile and docker-compose.yml configured.
+[X] [TC.7] Docker: Dockerfile and docker-compose.yml configured.
 
 ### Use Cases Flow
 
