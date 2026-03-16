@@ -14,6 +14,15 @@ CineReserve is a high-performance, scalable RESTful backend built for modern cin
 * **CI/CD:** GitHub Actions
 * **Documentation:** Swagger (via drf-spectacular)
 
+## 🗄️ Database Design & Concurrency Strategy
+
+To ensure robust concurrency control and fulfill the strict requirements for seat locking (Case 4 and 5), we opted for an explicit relational mapping for sessions and seats:
+
+* **`Movie`:** Contains catalog details (title, description, duration).
+* **`Session`:** Represents a specific screening (datetime) linked to a Movie.
+* **`Seat`:** Instead of calculating seats on the fly, every single seat for a session is explicitly mapped in the database with a unique identifier (e.g., 'A1', 'A2') and a permanent `is_purchased` boolean state. 
+* **State Management:** The "Available" and "Purchased" states are the source of truth in PostgreSQL. The "Reserved" (locked) state is dynamically handled in-memory using Redis with a 10-minute TTL, ensuring extreme performance and zero database deadlocks during high-traffic checkout flows.
+
 ## 🚀 How to Run (Local Environment)
 
 1. Clone the repository:
