@@ -71,7 +71,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [X] Case 4: Seat Map Visualization (Distinguish: Available, Reserved, Purchased).
 
-[ ] Case 5: Reservation & Locking (10-minute Redis lock).
+[X] Case 5: Reservation & Locking (10-minute Redis lock).
 
 [ ] Case 6: Checkout & Ticket Generation (Free tickets, lock transitions to permanent DB record).
 

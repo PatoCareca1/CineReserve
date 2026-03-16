@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'users',
     'movies',
+    'tickets',
 ]
 
 MIDDLEWARE = [
@@ -142,3 +143,5 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
