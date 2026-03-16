@@ -53,7 +53,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [ ] Redis caching for popular sessions and movies.
 
-[ ] [TC.4] Pagination: Applied to Movies, Sessions, and User Tickets endpoints.
+[X] [TC.4] Pagination: Applied to Movies, Sessions, and User Tickets endpoints.
 
 [ ] [TC.5] Testing: Comprehensive Unit testing covering functional and edge cases.
 
@@ -65,9 +65,9 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [x] Case 1: Registration and Login.
 
-[ ] Case 2: List all available movies.
+[X] Case 2: List all available movies.
 
-[ ] Case 3: List all available sessions for a specific movie.
+[X] Case 3: List all available sessions for a specific movie.
 
 [ ] Case 4: Seat Map Visualization (Distinguish: Available, Reserved, Purchased).
 
