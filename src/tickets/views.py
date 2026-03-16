@@ -2,13 +2,12 @@ import redis
 from django.conf import settings
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from rest_framework import views, status
+from rest_framework import views, status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from movies.models import Seat
 from .models import Ticket
-from .serializers import SeatReservationSerializer
-
+from .serializers import SeatReservationSerializer, TicketSerializer
 redis_client = redis.from_url(settings.REDIS_URL)
 
 class SeatReservationView(views.APIView):
@@ -87,3 +86,10 @@ class CheckoutView(views.APIView):
                 {"detail": "An error occurred during checkout."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class MyTicketsView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TicketSerializer
+
+    def get_queryset(self):
+        return Ticket.objects.filter(user=self.request.user).order_by('-created_at')

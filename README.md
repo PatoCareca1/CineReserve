@@ -75,7 +75,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [X] Case 6: Checkout & Ticket Generation (Free tickets, lock transitions to permanent DB record).
 
-[ ] Case 7: "My Tickets" Portal (List user's active/past tickets).
+[X] Case 7: "My Tickets" Portal (List user's active/past tickets).
 
 ### Advanced
 
