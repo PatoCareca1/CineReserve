@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+db.sqlite3
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+celerybeat-schedule
+*.log
