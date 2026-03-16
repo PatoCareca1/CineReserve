@@ -69,7 +69,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [X] Case 3: List all available sessions for a specific movie.
 
-[ ] Case 4: Seat Map Visualization (Distinguish: Available, Reserved, Purchased).
+[X] Case 4: Seat Map Visualization (Distinguish: Available, Reserved, Purchased).
 
 [ ] Case 5: Reservation & Locking (10-minute Redis lock).
 
