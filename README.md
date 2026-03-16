@@ -22,17 +22,17 @@ CineReserve is a high-performance, scalable RESTful backend built for modern cin
    git clone [https://github.com/PatoCareca1/cinereserve.git](https://github.com/PatoCareca1/cinereserve.git)
    cd cinereserve
 
-# Start the infrastructure (PostgreSQL, Redis, Application, Celery Worker) using Docker
+### Start the infrastructure (PostgreSQL, Redis, Application, Celery Worker) using Docker
 
 docker-compose up --build
 
-# Access the API Documentation
+### Access the API Documentation
 
 Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 ## Feature Implementation Checklist
 
-# Core Requirements
+### Core Requirements
 
 [ ] [TC.1] API Development: RESTful API using Python + Poetry + Django REST Framework.
 
@@ -52,7 +52,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [ ] [TC.7] Docker: Dockerfile and docker-compose.yml configured.
 
-# Use Cases Flow
+### Use Cases Flow
 
 [ ] Case 1: Registration and Login.
 
@@ -68,7 +68,8 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [ ] Case 7: "My Tickets" Portal (List user's active/past tickets).
 
-Advanced / Bonus (Treated as Core)
+### Advanced
+
 [ ] Security: Rate limiting, input validation, SQLi & CSRF prevention.
 
 [ ] Asynchronous Tasks: Celery for background processing (auto-releasing locks).
