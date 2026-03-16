@@ -36,7 +36,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [ ] [TC.1] API Development: RESTful API using Python + Poetry + Django REST Framework.
 
-[ ] [TC.2] Authentication: JWT-based user authentication & secure session management.
+[x] [TC.2] Authentication: JWT-based user authentication & secure session management.
 
 [ ] [TC.3.1] Database: PostgreSQL with optimized normalized design.
 
@@ -54,7 +54,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 ### Use Cases Flow
 
-[ ] Case 1: Registration and Login.
+[x] Case 1: Registration and Login.
 
 [ ] Case 2: List all available movies.
 
