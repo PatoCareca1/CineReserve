@@ -126,8 +126,8 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 ### Advanced
 
-[ ] Security: Rate limiting, input validation, SQLi & CSRF prevention.
+[X] Security: Rate limiting, input validation, SQLi & CSRF prevention.
 
 [X] Asynchronous Tasks: Celery for background processing (auto-releasing locks).
 
-[ ] CI/CD: GitHub Actions pipeline to run tests on every push/PR.
+[X] CI/CD: GitHub Actions pipeline to run tests on every push/PR.
