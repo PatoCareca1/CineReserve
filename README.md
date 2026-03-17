@@ -128,6 +128,6 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [ ] Security: Rate limiting, input validation, SQLi & CSRF prevention.
 
-[ ] Asynchronous Tasks: Celery for background processing (auto-releasing locks).
+[X] Asynchronous Tasks: Celery for background processing (auto-releasing locks).
 
 [ ] CI/CD: GitHub Actions pipeline to run tests on every push/PR.

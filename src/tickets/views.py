@@ -8,6 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from movies.models import Seat
 from .models import Ticket
 from .serializers import SeatReservationSerializer, TicketSerializer
+from .tasks import send_ticket_confirmation
+
 redis_client = redis.from_url(settings.REDIS_URL)
 
 class SeatReservationView(views.APIView):
@@ -76,6 +78,8 @@ class CheckoutView(views.APIView):
                 )
 
             redis_client.delete(lock_key)
+            
+            send_ticket_confirmation.delay(ticket.id)
             
             return Response(
                 {"detail": "Ticket purchased successfully.", "ticket_id": ticket.id},
