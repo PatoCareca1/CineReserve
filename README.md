@@ -70,21 +70,78 @@ erDiagram
 
 ```
 
-## 🚀 How to Run (Local Environment)
+## 🛠️ Quickstart (How to Run)
 
-1. Clone the repository:
+To make the evaluation process as smooth as possible, I have implemented a `Makefile` that abstracts the complex Docker commands. **However, this is completely optional.** If you prefer to use the standard Docker commands, the original equivalent is provided right below each step.
 
-   ```bash
-   git clone [https://github.com/PatoCareca1/cinereserve.git](https://github.com/PatoCareca1/cinereserve.git)
-   cd cinereserve
+*(Note: If using Make, remember to always prefix the command with `make`, e.g., `make up`)*
 
-### Start the infrastructure (PostgreSQL, Redis, Application, Celery Worker) using Docker
+### Prerequisites
 
-docker-compose up --build
+* Docker & Docker Compose
 
-### Access the API Documentation
+### Step-by-Step
 
-Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
+**1. Start the infrastructure** (Database, Redis, Celery, and the Web API):
+
+* Using Make:
+
+  ```bash
+  make up
+  ```
+
+* Using Standard Docker:
+
+  ```bash
+  docker-compose up -d
+  ```
+
+**2. Apply migrations:**
+
+* Using Make:
+
+  ```bash
+  make migrate
+  ```
+
+* Using Standard Docker:
+
+  ```bash
+  docker-compose exec web python manage.py migrate
+  ```
+
+**3. Populate the database with test data** (Creates a Movie, a Session, and 10 Seats):
+
+* Using Make:
+
+  ```bash
+  make seed
+  ```
+
+* Using Standard Docker:
+
+  ```bash
+  docker-compose exec web python manage.py shell -c "from movies.models import Movie, Session, Seat; from django.utils import timezone; m, _ = Movie.objects.get_or_create(title='Matrix Resurrections', defaults={'description':'Sci-Fi', 'duration_minutes':148}); s, _ = Session.objects.get_or_create(movie=m, start_datetime=timezone.now()); [Seat.objects.get_or_create(session=s, seat_number=f'A{i}') for i in range(1, 11)]"
+  ```
+
+**4. Run the automated test suite** (Validates concurrency, cache, and business logic):
+
+* Using Make:
+
+  ```bash
+  make test
+  ```
+
+* Using Standard Docker:
+
+  ```bash
+  docker-compose exec web python manage.py test
+  ```
+
+## 📖 API Documentation
+
+Once the application is running, the interactive Swagger documentation is available at:
+👉 **[http://localhost:8000/api/docs/](http://localhost:8000/api/docs/)**
 
 ## Feature Implementation Checklist
 
