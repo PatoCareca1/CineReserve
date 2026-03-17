@@ -20,8 +20,55 @@ To ensure robust concurrency control and fulfill the strict requirements for sea
 
 * **`Movie`:** Contains catalog details (title, description, duration).
 * **`Session`:** Represents a specific screening (datetime) linked to a Movie.
-* **`Seat`:** Instead of calculating seats on the fly, every single seat for a session is explicitly mapped in the database with a unique identifier (e.g., 'A1', 'A2') and a permanent `is_purchased` boolean state. 
+* **`Seat`:** Instead of calculating seats on the fly, every single seat for a session is explicitly mapped in the database with a unique identifier (e.g., 'A1', 'A2') and a permanent `is_purchased` boolean state.
 * **State Management:** The "Available" and "Purchased" states are the source of truth in PostgreSQL. The "Reserved" (locked) state is dynamically handled in-memory using Redis with a 10-minute TTL, ensuring extreme performance and zero database deadlocks during high-traffic checkout flows.
+
+```mermaid
+erDiagram
+    %% =========================
+    %% RELATIONSHIPS
+    %% =========================
+    USER ||--o{ TICKET : purchases
+    MOVIE ||--o{ SESSION : has
+    SESSION ||--o{ SEAT : contains
+    SEAT ||--o| TICKET : locked
+
+    %% =========================
+    %% ENTITIES
+    %% =========================
+
+    USER {
+        int id PK
+        string username "unique"
+    }
+
+    MOVIE {
+        int id PK
+        string title
+        int duration_minutes "min"
+    }
+
+    SESSION {
+        int id PK
+        datetime start_datetime
+        int movie_id FK
+    }
+
+    SEAT {
+        int id PK
+        string seat_number "e.g. A10"
+        boolean is_purchased
+        int session_id FK
+    }
+
+    TICKET {
+        int id PK
+        datetime created_at
+        int user_id FK
+        int seat_id FK "unique"
+    }
+
+```
 
 ## 🚀 How to Run (Local Environment)
 
@@ -47,7 +94,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [X] [TC.2] Authentication: JWT-based user authentication & secure session management.
 
-[X ] [TC.3.1] Database: PostgreSQL with optimized normalized design.
+[X] [TC.3.1] Database: PostgreSQL with optimized normalized design.
 
 [X] [TC.3.2] Caching & Scalability: - [X] Redis distributed lock for 10-minute temporary seat reservations.
 
@@ -55,7 +102,7 @@ Swagger UI: <http://localhost:8000/api/schema/swagger-ui/>
 
 [X] [TC.4] Pagination: Applied to Movies, Sessions, and User Tickets endpoints.
 
-[ ] [TC.5] Testing: Comprehensive Unit testing covering functional and edge cases.
+[X] [TC.5] Testing: Comprehensive Unit testing covering functional and edge cases.
 
 [X] [TC.6] Documentation: OpenAPI/Swagger detailed endpoints.
 

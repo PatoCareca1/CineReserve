@@ -1,5 +1,7 @@
 import redis
 from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -8,11 +10,13 @@ from .serializers import MovieSerializer, SessionSerializer, SeatSerializer
 
 redis_client = redis.from_url(settings.REDIS_URL)
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class MovieListView(generics.ListAPIView):
     queryset = Movie.objects.all().order_by('id')
     serializer_class = MovieSerializer
     permission_classes = [AllowAny]
 
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class SessionListView(generics.ListAPIView):
     serializer_class = SessionSerializer
     permission_classes = [AllowAny]
