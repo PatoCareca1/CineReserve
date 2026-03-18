@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from './api'
-import { Header, LoginModal, TicketSuccess } from './components'
+import { Header, LoginModal, TicketSuccess, Footer, MovieCard } from './components'
 
 const MOCK_SESSIONS = [
   { id: 101, time: '15:30', format: 'Dublado', room: 'Sala 1', is_3d: false },
@@ -117,7 +117,7 @@ function App() {
     <div className="min-h-screen font-sans selection:bg-brand selection:text-white pb-20">
       <Header isLoggedIn={isLoggedIn} onLoginClick={() => setIsLoginOpen(true)} onLogoClick={() => setPurchasedTicket(null)} />
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main className="max-w-7xl mx-auto px-6 py-12 flex-grow">
         {purchasedTicket ? (
           <TicketSuccess ticket={purchasedTicket} onHomeClick={() => setPurchasedTicket(null)} />
         ) : (
@@ -132,32 +132,17 @@ function App() {
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand"></div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {movies.map((movie) => (
-                  <div key={movie.id} className="group relative bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-brand/10 flex flex-col">
-                    <div className="aspect-[2/3] w-full bg-gradient-to-br from-zinc-800 to-zinc-950 flex items-center justify-center p-6 text-center group-hover:opacity-90 transition-opacity flex-shrink-0">
-                      <h3 className="text-2xl font-bold text-zinc-600 uppercase tracking-widest">{movie.title}</h3>
-                    </div>
-                    <div className="p-5 flex flex-col flex-grow bg-zinc-900">
-                      <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{movie.title}</h3>
-                      <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
-                        <span className="bg-zinc-800 px-2 py-1 rounded">{movie.description}</span>
-                        <span>•</span>
-                        <span>{movie.duration_minutes} min</span>
-                      </div>
-                      <div className="mt-auto">
-                        <button onClick={() => setSelectedMovie(movie)} className="w-full bg-zinc-800 hover:bg-brand text-white font-semibold py-2.5 rounded-xl transition-colors active:scale-95">
-                          Ver Sessões
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <MovieCard key={movie.id} movie={movie} onSelect={setSelectedMovie} />
                 ))}
               </div>
             )}
           </>
         )}
       </main>
+
+      {!purchasedTicket && !selectedMovie && <Footer />}
 
       <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onLogin={handleLogin} isLoading={actionLoading} />
 

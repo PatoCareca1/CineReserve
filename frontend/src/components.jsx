@@ -17,7 +17,7 @@ export function Header({ isLoggedIn, onLoginClick, onLogoClick }) {
                         </div>
                     </div>
                 ) : (
-                    <button onClick={onLoginClick} className="text-sm font-medium bg-zinc-900 hover:bg-zinc-800 px-5 py-2.5 rounded-lg border border-zinc-800 transition-colors">
+                    <button onClick={onLoginClick} className="text-sm font-medium bg-zinc-900 hover:bg-zinc-800 px-5 py-2.5 rounded-lg border border-zinc-800 transition-colors text-white">
                         Entrar
                     </button>
                 )}
@@ -112,6 +112,84 @@ export function TicketSuccess({ ticket, onHomeClick }) {
             <button onClick={onHomeClick} className="w-full mt-8 bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 rounded-xl transition-colors border border-zinc-800">
                 Voltar ao Início
             </button>
+        </div>
+    )
+}
+
+export function Footer() {
+    return (
+        <footer className="mt-24 border-t border-zinc-800 bg-zinc-950/80 pt-16 pb-8 relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-32 bg-brand/10 blur-[100px] pointer-events-none"></div>
+
+            <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+                <h2 className="text-3xl font-black text-white mb-4 tracking-tight">Vamos conversar?</h2>
+                <p className="text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Estou sempre aberto a novos desafios em desenvolvimento backend, arquitetura de sistemas e parcerias em projetos open-source.
+                </p>
+
+                <div className="flex flex-wrap justify-center gap-6 mb-16">
+                    <a href="https://www.linkedin.com/in/lucas-daniel-costa-souza/" className="flex items-center gap-2 text-brand hover:text-brand-hover font-semibold transition-colors group">
+                        <svg className="w-5 h-5 group-hover:-translate-y-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                        LinkedIn
+                    </a>
+                    <a href="https://github.com/PatoCareca1" className="flex items-center gap-2 text-brand hover:text-brand-hover font-semibold transition-colors group">
+                        <svg className="w-5 h-5 group-hover:-translate-y-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" /></svg>
+                        GitHub
+                    </a>
+                    <a href="mailto:lucasd1234@gmail.com" className="flex items-center gap-2 text-brand hover:text-brand-hover font-semibold transition-colors group">
+                        <svg className="w-5 h-5 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        contato@lucasdaniel.dev.br
+                    </a>
+                </div>
+
+                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-12">
+                    <p className="text-zinc-300 italic text-sm">
+                        "Não conseguiu achar o filme que queria? Sinto lhe dizer, mas esse não é realmente um site de um cinema. Mas se achou a arquitetura deste projeto interessante, <a href="http://www.lucasdaniel.dev.br" className="text-brand hover:underline font-bold">visite o meu site</a> e veja o código fonte no GitHub!"
+                    </p>
+                </div>
+
+                <p className="text-zinc-600 text-xs uppercase tracking-widest font-semibold">
+                    © 2026 Lucas Daniel • Desenvolvedor Backend • Natal, RN
+                </p>
+            </div>
+        </footer>
+    )
+}
+
+export function MovieCard({ movie, onSelect }) {
+    const extension = movie.id === 6 ? 'jpg' : 'png';
+    const imageUrl = `/poster-${movie.id}.${extension}`;
+
+    return (
+        <div className="group relative bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-brand/10 flex flex-col">
+            <div className="aspect-[2/3] w-full relative overflow-hidden bg-zinc-950 flex-shrink-0">
+                <img
+                    src={imageUrl}
+                    alt={movie.title}
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                    onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                    }}
+                />
+                <div style={{ display: 'none' }} className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-950 items-center justify-center p-6 text-center">
+                    <h3 className="text-xl font-bold text-zinc-600 uppercase tracking-widest">{movie.title}</h3>
+                </div>
+            </div>
+
+            <div className="p-5 flex flex-col flex-grow bg-zinc-900 border-t border-zinc-800">
+                <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">{movie.title}</h3>
+                <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
+                    <span className="bg-zinc-800 px-2 py-1 rounded">{movie.description.split(' - ')[0]}</span>
+                    <span>•</span>
+                    <span>{movie.duration_minutes} min</span>
+                </div>
+                <div className="mt-auto">
+                    <button onClick={() => onSelect(movie)} className="w-full bg-zinc-800 hover:bg-brand text-white font-semibold py-2.5 rounded-xl transition-colors active:scale-95">
+                        Ver Sessões
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }

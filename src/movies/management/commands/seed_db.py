@@ -11,22 +11,25 @@ class Command(BaseCommand):
         Session.objects.all().delete()
         Movie.objects.all().delete()
 
-        m1 = Movie.objects.create(title='Matrix Resurrections (Pato Version)', description='Sci-Fi / Ação', duration_minutes=148)
-        m2 = Movie.objects.create(title='Sua Melhor Escolha', description='Drama / Tecnologia', duration_minutes=120)
-        m3 = Movie.objects.create(title='Dune: Part Two (Pato on Sandworm)', description='Epic Sci-Fi', duration_minutes=166)
-        m4 = Movie.objects.create(title='O Rei Leão do Desenvolvimento', description='Animação / Meta-humor', duration_minutes=90)
+        m1 = Movie.objects.create(id=1, title='Matrix Resurrections (Pato Version)', description='Sci-Fi / Ação - Escolha a pílula vermelha.', duration_minutes=148)
+        m2 = Movie.objects.create(id=2, title='Sua Melhor Escolha', description='Drama / Tecnologia - A jornada do Desenvolvedor Backend.', duration_minutes=120)
+        m3 = Movie.objects.create(id=3, title='Dune: O Domador do Deserto', description='Epic Sci-Fi - Aquele que controla a API, controla o universo.', duration_minutes=166)
+        m4 = Movie.objects.create(id=4, title='Erro 500: A Maldição do Código', description='Terror - Eles acharam que estava pronto para produção...', duration_minutes=95)
+        m5 = Movie.objects.create(id=5, title='Em Busca do Deploy Perfeito', description='Sci-Fi Espacial - Onde nenhum dev jamais esteve.', duration_minutes=150)
+        m6 = Movie.objects.create(id=6, title='O Poderoso Tech Lead', description='Drama / Máfia - Vou fazer uma PR que ele não pode recusar.', duration_minutes=175)
 
         agora = timezone.now() + datetime.timedelta(hours=2)
-        s1 = Session.objects.create(movie=m1, start_datetime=agora)
-        s2 = Session.objects.create(movie=m2, start_datetime=agora)
-        s3 = Session.objects.create(movie=m3, start_datetime=agora)
-        s4 = Session.objects.create(movie=m4, start_datetime=agora)
+        movies = [m1, m2, m3, m4, m5, m6]
+        
+        sessions = []
+        for movie in movies:
+            sessions.append(Session.objects.create(movie=movie, start_datetime=agora))
 
-        for session in [s1, s2, s3, s4]:
+        for session in sessions:
             for row in ['A', 'B', 'C', 'D', 'E']:
                 for col in range(1, 6):
                     Seat.objects.create(session=session, seat_number=f'{row}{col}')
 
-        Seat.objects.filter(session=s1, seat_number__in=['A1', 'C3', 'E5']).update(is_purchased=True)
+        Seat.objects.filter(session=sessions[0], seat_number__in=['A1', 'B2', 'D4', 'E5']).update(is_purchased=True)
 
-        self.stdout.write(self.style.SUCCESS('Banco de dados populado com sucesso com os filmes customizados!'))
+        self.stdout.write(self.style.SUCCESS('Banco de dados populado com sucesso com os 6 filmes épicos!'))
