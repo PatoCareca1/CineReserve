@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/api'
+const API_URL = 'https://cinereserve-api.onrender.com/api'
 
 export const api = {
     getMovies: async () => {
