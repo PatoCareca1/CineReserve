@@ -45,5 +45,20 @@ export const api = {
             body: JSON.stringify({ seat_id: seatId })
         })
         return res
+    },
+    register: async (data) => {
+        const res = await fetch(`${API_URL}/users/register/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        return res
+    },
+    getMyTickets: async (token) => {
+        const res = await fetch(`${API_URL}/tickets/my-tickets/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        if (!res.ok) throw new Error('Network error')
+        return res.json()
     }
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from './api'
-import { Header, LoginModal, TicketSuccess, Footer, MovieCard } from './components'
+import { Header, LoginModal, TicketSuccess, Footer, MovieCard, MyTicketsView } from './components'
 
 function App() {
   const [movies, setMovies] = useState([])
@@ -17,6 +17,11 @@ function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [token, setToken] = useState(null)
+  const [username, setUsername] = useState('')
+
+  const [showMyTickets, setShowMyTickets] = useState(false)
+  const [myTickets, setMyTickets] = useState([])
+  const [ticketsLoading, setTicketsLoading] = useState(false)
 
   const [purchasedTicket, setPurchasedTicket] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
@@ -75,28 +80,65 @@ function App() {
     setSeats([])
   }
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
+  const handleLogin = async (credentials) => {
     setActionLoading(true)
-    const credentials = {
-      username: e.target.username.value,
-      password: e.target.password.value
-    }
-
     try {
       const response = await api.login(credentials)
       if (response.ok) {
         const data = await response.json()
         setToken(data.access)
         setIsLoggedIn(true)
+        setUsername(credentials.username)
         setIsLoginOpen(false)
+        return { success: true }
       } else {
-        alert('Credenciais inválidas.')
+        return { success: false, error: 'Credenciais inválidas.' }
       }
-    } catch (error) {
-      alert('Erro ao ligar ao servidor.')
+    } catch {
+      return { success: false, error: 'Erro ao ligar ao servidor.' }
     } finally {
       setActionLoading(false)
+    }
+  }
+
+  const handleRegister = async (data) => {
+    setActionLoading(true)
+    try {
+      const response = await api.register(data)
+      if (response.ok) {
+        return { success: true }
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        const errorMsg = Object.values(errorData).flat().join(' ') || 'Erro ao criar conta.'
+        return { success: false, error: errorMsg }
+      }
+    } catch {
+      return { success: false, error: 'Erro ao ligar ao servidor.' }
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    setToken(null)
+    setIsLoggedIn(false)
+    setUsername('')
+    setShowMyTickets(false)
+    setMyTickets([])
+    setPurchasedTicket(null)
+  }
+
+  const handleShowMyTickets = async () => {
+    setShowMyTickets(true)
+    setPurchasedTicket(null)
+    setTicketsLoading(true)
+    try {
+      const data = await api.getMyTickets(token)
+      setMyTickets(data.results || data)
+    } catch {
+      setMyTickets([])
+    } finally {
+      setTicketsLoading(false)
     }
   }
 
@@ -142,7 +184,7 @@ function App() {
       } else {
         alert('Erro ao processar o pagamento.')
       }
-    } catch (error) {
+    } catch {
       alert('Erro de rede ao processar compra.')
     } finally {
       setActionLoading(false)
@@ -158,13 +200,27 @@ function App() {
     return 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white hover:-translate-y-1'
   }
 
+  const handleGoHome = () => {
+    setShowMyTickets(false)
+    setPurchasedTicket(null)
+  }
+
   return (
     <div className="min-h-screen font-sans selection:bg-brand selection:text-white pb-20">
-      <Header isLoggedIn={isLoggedIn} onLoginClick={() => setIsLoginOpen(true)} onLogoClick={() => setPurchasedTicket(null)} />
+      <Header
+        isLoggedIn={isLoggedIn}
+        username={username}
+        onLoginClick={() => setIsLoginOpen(true)}
+        onLogoClick={handleGoHome}
+        onMyTicketsClick={handleShowMyTickets}
+        onLogoutClick={handleLogout}
+      />
 
       <main className="max-w-7xl mx-auto px-6 py-12 flex-grow">
         {purchasedTicket ? (
-          <TicketSuccess ticket={purchasedTicket} onHomeClick={() => setPurchasedTicket(null)} />
+          <TicketSuccess ticket={purchasedTicket} onHomeClick={handleGoHome} />
+        ) : showMyTickets ? (
+          <MyTicketsView tickets={myTickets} loading={ticketsLoading} formatTime={formatTime} formatDate={formatDate} />
         ) : (
           <>
             <div className="mb-12">
@@ -187,9 +243,15 @@ function App() {
         )}
       </main>
 
-      {!purchasedTicket && !selectedMovie && <Footer />}
+      {!purchasedTicket && !selectedMovie && !showMyTickets && <Footer />}
 
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onLogin={handleLogin} isLoading={actionLoading} />
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+        isLoading={actionLoading}
+      />
 
       {selectedMovie && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">

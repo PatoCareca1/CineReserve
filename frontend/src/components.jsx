@@ -1,20 +1,32 @@
-export function Header({ isLoggedIn, onLoginClick, onLogoClick }) {
+import { useState } from 'react'
+
+export function Header({ isLoggedIn, username, onLoginClick, onLogoClick, onMyTicketsClick, onLogoutClick }) {
     return (
         <header className="border-b border-zinc-800 bg-zinc-950/50 backdrop-blur-md sticky top-0 z-40">
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                <div className="flex items-center gap-2 cursor-pointer" onClick={onLogoClick}>
-                    <span className="text-3xl">🍿</span>
-                    <h1 className="text-2xl font-bold tracking-tighter text-white">
-                        Cine<span className="text-brand">Reserve</span>
-                    </h1>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={onLogoClick}>
+                        <span className="text-3xl">🍿</span>
+                        <h1 className="text-2xl font-bold tracking-tighter text-white">
+                            Cine<span className="text-brand">Reserve</span>
+                        </h1>
+                    </div>
+                    {isLoggedIn && (
+                        <button onClick={onMyTicketsClick} className="text-sm font-medium text-zinc-400 hover:text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors">
+                            Meus Tickets
+                        </button>
+                    )}
                 </div>
 
                 {isLoggedIn ? (
                     <div className="flex items-center gap-4">
-                        <span className="text-zinc-400 text-sm hidden md:block">Olá, Cinéfilo</span>
+                        <span className="text-zinc-400 text-sm hidden md:block">Olá, {username}</span>
                         <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold">
-                            C
+                            {username.charAt(0).toUpperCase()}
                         </div>
+                        <button onClick={onLogoutClick} className="text-sm font-medium text-zinc-500 hover:text-red-400 px-3 py-2 rounded-lg hover:bg-zinc-800/50 transition-colors">
+                            Sair
+                        </button>
                     </div>
                 ) : (
                     <button onClick={onLoginClick} className="text-sm font-medium bg-zinc-900 hover:bg-zinc-800 px-5 py-2.5 rounded-lg border border-zinc-800 transition-colors text-white">
@@ -26,32 +38,194 @@ export function Header({ isLoggedIn, onLoginClick, onLogoClick }) {
     )
 }
 
-export function LoginModal({ isOpen, onClose, onLogin, isLoading }) {
+export function LoginModal({ isOpen, onClose, onLogin, onRegister, isLoading }) {
+    const [isRegisterMode, setIsRegisterMode] = useState(false)
+    const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
+
     if (!isOpen) return null
+
+    const handleSubmitLogin = async (e) => {
+        e.preventDefault()
+        setError('')
+        const result = await onLogin({
+            username: e.target.username.value,
+            password: e.target.password.value
+        })
+        if (!result.success) setError(result.error)
+    }
+
+    const handleSubmitRegister = async (e) => {
+        e.preventDefault()
+        setError('')
+        setSuccess('')
+        const password = e.target.password.value
+        const confirmPassword = e.target.confirmPassword.value
+
+        if (password !== confirmPassword) {
+            setError('As senhas não coincidem.')
+            return
+        }
+
+        const result = await onRegister({
+            username: e.target.username.value,
+            email: e.target.email.value,
+            password: password
+        })
+        if (result.success) {
+            setSuccess('Conta criada com sucesso! Faça login.')
+            setIsRegisterMode(false)
+            setError('')
+        } else {
+            setError(result.error)
+        }
+    }
+
+    const handleToggleMode = () => {
+        setIsRegisterMode(!isRegisterMode)
+        setError('')
+        setSuccess('')
+    }
+
+    const handleClose = () => {
+        setIsRegisterMode(false)
+        setError('')
+        setSuccess('')
+        onClose()
+    }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
                 <div className="p-6 flex justify-between items-center border-b border-zinc-800">
-                    <h3 className="text-xl font-bold text-white">Acesse sua conta</h3>
-                    <button onClick={onClose} className="text-zinc-500 hover:text-white">✕</button>
+                    <h3 className="text-xl font-bold text-white">{isRegisterMode ? 'Criar conta' : 'Acesse sua conta'}</h3>
+                    <button onClick={handleClose} className="text-zinc-500 hover:text-white">✕</button>
                 </div>
-                <form onSubmit={onLogin} className="p-8">
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-1.5">Usuário</label>
-                            <input type="text" name="username" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+
+                {isRegisterMode ? (
+                    <form onSubmit={handleSubmitRegister} className="p-8">
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Usuário</label>
+                                <input type="text" name="username" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">E-mail</label>
+                                <input type="email" name="email" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Senha</label>
+                                <input type="password" name="password" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Confirmar Senha</label>
+                                <input type="password" name="confirmPassword" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-1.5">Senha</label>
-                            <input type="password" name="password" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+
+                        {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
+
+                        <button disabled={isLoading} type="submit" className="w-full mt-6 bg-brand hover:bg-brand-hover text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50">
+                            {isLoading ? 'Criando conta...' : 'Criar Conta'}
+                        </button>
+
+                        <p className="text-center text-zinc-500 text-sm mt-6">
+                            Já tem uma conta?{' '}
+                            <button type="button" onClick={handleToggleMode} className="text-brand hover:text-brand-hover font-semibold transition-colors">
+                                Entrar
+                            </button>
+                        </p>
+                    </form>
+                ) : (
+                    <form onSubmit={handleSubmitLogin} className="p-8">
+                        {success && (
+                            <div className="bg-green-500/10 border border-green-500/20 text-green-400 text-sm px-4 py-3 rounded-xl mb-4">
+                                {success}
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Usuário</label>
+                                <input type="text" name="username" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-400 mb-1.5">Senha</label>
+                                <input type="password" name="password" required className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand transition-colors" />
+                            </div>
                         </div>
-                    </div>
-                    <button disabled={isLoading} type="submit" className="w-full mt-8 bg-brand hover:bg-brand-hover text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50">
-                        {isLoading ? 'A entrar...' : 'Entrar'}
-                    </button>
-                </form>
+
+                        {error && <p className="text-red-400 text-sm mt-4">{error}</p>}
+
+                        <button disabled={isLoading} type="submit" className="w-full mt-6 bg-brand hover:bg-brand-hover text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50">
+                            {isLoading ? 'A entrar...' : 'Entrar'}
+                        </button>
+
+                        <p className="text-center text-zinc-500 text-sm mt-6">
+                            Não tem conta ainda?{' '}
+                            <button type="button" onClick={handleToggleMode} className="text-brand hover:text-brand-hover font-semibold transition-colors">
+                                Cadastre-se
+                            </button>
+                        </p>
+                    </form>
+                )}
             </div>
+        </div>
+    )
+}
+
+export function MyTicketsView({ tickets, loading, formatTime, formatDate }) {
+    return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="mb-12">
+                <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Meus Tickets</h2>
+                <p className="text-zinc-400 text-lg">Seus ingressos comprados aparecem aqui.</p>
+            </div>
+
+            {loading ? (
+                <div className="flex justify-center py-20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand"></div>
+                </div>
+            ) : tickets.length === 0 ? (
+                <div className="text-center py-20">
+                    <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span className="text-4xl">🎫</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2">Nenhum ingresso ainda</h3>
+                    <p className="text-zinc-500">Quando você comprar um ingresso, ele aparecerá aqui.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {tickets.map((ticket) => (
+                        <div key={ticket.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all">
+                            <div className="p-6 border-b border-zinc-800 bg-zinc-950/50">
+                                <span className="text-brand font-black tracking-widest uppercase text-[10px]">CineReserve</span>
+                                <h3 className="text-xl font-bold text-white mt-1 mb-1 leading-tight">{ticket.movie_title}</h3>
+                            </div>
+                            <div className="p-6">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-zinc-500 text-xs uppercase font-bold mb-1">Horário</p>
+                                        <p className="text-white font-semibold">{formatTime(ticket.session_time)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-zinc-500 text-xs uppercase font-bold mb-1">Data</p>
+                                        <p className="text-white font-semibold">{formatDate(ticket.session_time)}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-zinc-500 text-xs uppercase font-bold mb-1">Assento</p>
+                                        <p className="text-brand font-black text-2xl">{ticket.seat.seat_number}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-zinc-500 text-xs uppercase font-bold mb-1">Pedido</p>
+                                        <p className="text-white font-mono font-semibold">#{ticket.id}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }
@@ -83,10 +257,6 @@ export function TicketSuccess({ ticket, onHomeClick }) {
                         <div>
                             <p className="text-zinc-500 text-xs uppercase font-bold mb-1">Data / Hora</p>
                             <p className="text-zinc-900 font-bold text-lg">Hoje, {ticket.time}</p>
-                        </div>
-                        <div>
-                            <p className="text-zinc-500 text-xs uppercase font-bold mb-1">Local</p>
-                            <p className="text-zinc-900 font-bold text-lg">{ticket.room}</p>
                         </div>
                         <div>
                             <p className="text-zinc-500 text-xs uppercase font-bold mb-1">Assento</p>
