@@ -82,7 +82,10 @@ class CheckoutView(views.APIView):
 
             redis_client.delete(lock_key)
 
-            send_ticket_confirmation.delay(ticket.id)
+            try:
+                send_ticket_confirmation.delay(ticket.id)
+            except Exception:
+                pass
 
             return Response(
                 {"detail": "Ticket purchased successfully.", "ticket_id": ticket.id},
