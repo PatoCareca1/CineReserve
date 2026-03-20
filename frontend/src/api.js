@@ -6,6 +6,16 @@ export const api = {
         if (!res.ok) throw new Error('Network error')
         return res.json()
     },
+    getSessions: async (movieId) => {
+        const res = await fetch(`${API_URL}/movies/${movieId}/sessions/`)
+        if (!res.ok) throw new Error('Network error')
+        return res.json()
+    },
+    getSeats: async (sessionId) => {
+        const res = await fetch(`${API_URL}/movies/sessions/${sessionId}/seats/`)
+        if (!res.ok) throw new Error('Network error')
+        return res.json()
+    },
     login: async (credentials) => {
         const res = await fetch(`${API_URL}/users/login/`, {
             method: 'POST',

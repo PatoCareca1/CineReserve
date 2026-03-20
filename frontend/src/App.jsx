@@ -2,24 +2,17 @@ import { useState, useEffect } from 'react'
 import { api } from './api'
 import { Header, LoginModal, TicketSuccess, Footer, MovieCard } from './components'
 
-const MOCK_SESSIONS = [
-  { id: 101, time: '15:30', format: 'Dublado', room: 'Sala 1', is_3d: false },
-  { id: 102, time: '18:45', format: 'Legendado', room: 'Sala 2', is_3d: true },
-  { id: 103, time: '21:15', format: 'Legendado', room: 'Sala 1 VIP', is_3d: false },
-]
-
-const MOCK_SEATS = Array.from({ length: 15 }, (_, i) => ({
-  id: i + 1,
-  seat_number: `A${i + 1}`,
-  is_purchased: [2, 5, 7, 12].includes(i + 1)
-}))
-
 function App() {
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedMovie, setSelectedMovie] = useState(null)
   const [selectedSession, setSelectedSession] = useState(null)
   const [selectedSeat, setSelectedSeat] = useState(null)
+
+  const [sessions, setSessions] = useState([])
+  const [sessionsLoading, setSessionsLoading] = useState(false)
+  const [seats, setSeats] = useState([])
+  const [seatsLoading, setSeatsLoading] = useState(false)
 
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -43,10 +36,43 @@ function App() {
       })
   }, [])
 
+  const handleSelectMovie = async (movie) => {
+    setSelectedMovie(movie)
+    setSelectedSession(null)
+    setSelectedSeat(null)
+    setSessions([])
+    setSessionsLoading(true)
+    try {
+      const data = await api.getSessions(movie.id)
+      setSessions(data.results || data)
+    } catch {
+      setSessions([])
+    } finally {
+      setSessionsLoading(false)
+    }
+  }
+
+  const handleSelectSession = async (session) => {
+    setSelectedSession(session)
+    setSelectedSeat(null)
+    setSeats([])
+    setSeatsLoading(true)
+    try {
+      const data = await api.getSeats(session.id)
+      setSeats(Array.isArray(data) ? data : data.results || [])
+    } catch {
+      setSeats([])
+    } finally {
+      setSeatsLoading(false)
+    }
+  }
+
   const handleCloseModal = () => {
     setSelectedMovie(null)
     setSelectedSession(null)
     setSelectedSeat(null)
+    setSessions([])
+    setSeats([])
   }
 
   const handleLogin = async (e) => {
@@ -74,6 +100,16 @@ function App() {
     }
   }
 
+  const formatTime = (datetimeStr) => {
+    const date = new Date(datetimeStr)
+    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const formatDate = (datetimeStr) => {
+    const date = new Date(datetimeStr)
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+  }
+
   const handleCheckout = async () => {
     if (!selectedSeat || !selectedSession) return
     if (!isLoggedIn || !token) {
@@ -87,7 +123,8 @@ function App() {
     try {
       const reserveRes = await api.reserve(selectedSeat.id, token)
       if (!reserveRes.ok) {
-        alert('Este assento já não está disponível.')
+        const errorData = await reserveRes.json().catch(() => ({}))
+        alert(errorData.detail || 'Este assento já não está disponível.')
         setActionLoading(false)
         return
       }
@@ -97,8 +134,7 @@ function App() {
         const checkoutData = await checkoutRes.json()
         setPurchasedTicket({
           movie: selectedMovie.title,
-          time: selectedSession.time,
-          room: selectedSession.room,
+          time: formatTime(selectedSession.start_datetime),
           seat: selectedSeat.seat_number,
           orderId: checkoutData.ticket_id || Math.random().toString(36).substr(2, 9).toUpperCase()
         })
@@ -111,6 +147,15 @@ function App() {
     } finally {
       setActionLoading(false)
     }
+  }
+
+  const getSeatStyle = (seat) => {
+    const isUnavailable = seat.status === 'Purchased' || seat.status === 'Reserved'
+    const isSelected = selectedSeat?.id === seat.id
+
+    if (isUnavailable) return 'bg-zinc-950 text-zinc-800 shadow-inner cursor-not-allowed'
+    if (isSelected) return 'bg-brand text-white shadow-[0_0_20px_rgba(225,29,72,0.4)] -translate-y-2'
+    return 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white hover:-translate-y-1'
   }
 
   return (
@@ -134,7 +179,7 @@ function App() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {movies.map((movie) => (
-                  <MovieCard key={movie.id} movie={movie} onSelect={setSelectedMovie} />
+                  <MovieCard key={movie.id} movie={movie} onSelect={handleSelectMovie} />
                 ))}
               </div>
             )}
@@ -154,14 +199,14 @@ function App() {
               <div>
                 <div className="flex items-center gap-3">
                   {selectedSession && (
-                    <button onClick={() => { setSelectedSession(null); setSelectedSeat(null); }} className="text-zinc-400 hover:text-white mr-2 transition-colors">
+                    <button onClick={() => { setSelectedSession(null); setSelectedSeat(null); setSeats([]); }} className="text-zinc-400 hover:text-white mr-2 transition-colors">
                       ← Voltar
                     </button>
                   )}
                   <h3 className="text-2xl font-bold text-white">{selectedMovie.title}</h3>
                 </div>
                 <p className="text-zinc-400 text-sm mt-1">
-                  {!selectedSession ? 'Selecione o horário desejado' : `Sessão das ${selectedSession.time} - Escolha seu assento`}
+                  {!selectedSession ? 'Selecione o horário desejado' : `Sessão das ${formatTime(selectedSession.start_datetime)} - Escolha seu assento`}
                 </p>
               </div>
               <button onClick={handleCloseModal} className="text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 w-10 h-10 rounded-full transition-colors flex items-center justify-center">✕</button>
@@ -169,45 +214,59 @@ function App() {
 
             <div className="p-8 overflow-y-auto bg-zinc-900/50">
               {!selectedSession ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {MOCK_SESSIONS.map((session) => (
-                    <button key={session.id} onClick={() => setSelectedSession(session)} className="flex items-center justify-between p-5 rounded-2xl border border-zinc-800 bg-zinc-950 hover:border-brand hover:bg-brand/5 transition-all text-left group">
-                      <div>
-                        <span className="block text-3xl font-black text-white group-hover:text-brand transition-colors">{session.time}</span>
-                        <span className="text-zinc-400 text-sm mt-1 block">{session.room}</span>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded font-medium">{session.format}</span>
-                        {session.is_3d && <span className="bg-brand/20 text-brand text-xs px-2 py-1 rounded font-bold border border-brand/20">3D</span>}
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                sessionsLoading ? (
+                  <div className="flex justify-center py-12">
+                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand"></div>
+                  </div>
+                ) : sessions.length === 0 ? (
+                  <p className="text-center text-zinc-500 py-12">Nenhuma sessão disponível para este filme.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {sessions.map((session) => (
+                      <button key={session.id} onClick={() => handleSelectSession(session)} className="flex items-center justify-between p-5 rounded-2xl border border-zinc-800 bg-zinc-950 hover:border-brand hover:bg-brand/5 transition-all text-left group">
+                        <div>
+                          <span className="block text-3xl font-black text-white group-hover:text-brand transition-colors">{formatTime(session.start_datetime)}</span>
+                          <span className="text-zinc-400 text-sm mt-1 block">{formatDate(session.start_datetime)}</span>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded font-medium">{session.movie_title}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )
               ) : (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
                   <div className="w-full h-12 bg-gradient-to-b from-white/10 to-transparent rounded-t-[50%] mb-12 border-t-4 border-white/20 flex items-start justify-center pt-2">
                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Tela</span>
                   </div>
 
-                  <div className="flex justify-center mb-10">
-                    <div className="grid grid-cols-5 gap-3 md:gap-5">
-                      {MOCK_SEATS.map((seat) => (
-                        <button
-                          key={seat.id}
-                          disabled={seat.is_purchased}
-                          onClick={() => setSelectedSeat(seat)}
-                          className={`relative w-12 h-14 md:w-14 md:h-16 rounded-t-2xl rounded-b-lg flex items-center justify-center text-sm font-bold transition-all duration-200 ${seat.is_purchased ? 'bg-zinc-950 text-zinc-800 shadow-inner cursor-not-allowed' : selectedSeat?.id === seat.id ? 'bg-brand text-white shadow-[0_0_20px_rgba(225,29,72,0.4)] -translate-y-2' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white hover:-translate-y-1'}`}
-                        >
-                          {seat.seat_number}
-                          {seat.is_purchased && <div className="absolute inset-0 flex items-center justify-center"><span className="text-zinc-800 text-2xl rotate-45">+</span></div>}
-                        </button>
-                      ))}
+                  {seatsLoading ? (
+                    <div className="flex justify-center py-12">
+                      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand"></div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex justify-center mb-10">
+                      <div className="grid grid-cols-5 gap-3 md:gap-5">
+                        {seats.map((seat) => (
+                          <button
+                            key={seat.id}
+                            disabled={seat.status === 'Purchased' || seat.status === 'Reserved'}
+                            onClick={() => setSelectedSeat(seat)}
+                            className={`relative w-12 h-14 md:w-14 md:h-16 rounded-t-2xl rounded-b-lg flex items-center justify-center text-sm font-bold transition-all duration-200 ${getSeatStyle(seat)}`}
+                          >
+                            {seat.seat_number}
+                            {seat.status === 'Purchased' && <div className="absolute inset-0 flex items-center justify-center"><span className="text-zinc-800 text-2xl rotate-45">+</span></div>}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex justify-center gap-6 text-sm bg-zinc-950/50 py-3 rounded-xl border border-zinc-800 max-w-md mx-auto">
                     <div className="flex items-center gap-2"><div className="w-4 h-4 rounded bg-zinc-800"></div><span className="text-zinc-400">Livre</span></div>
                     <div className="flex items-center gap-2"><div className="w-4 h-4 rounded bg-brand shadow-[0_0_10px_rgba(225,29,72,0.4)]"></div><span className="text-zinc-400">Selecionado</span></div>
+                    <div className="flex items-center gap-2"><div className="w-4 h-4 rounded bg-yellow-500/30 border border-yellow-500/50"></div><span className="text-zinc-400">Reservado</span></div>
                     <div className="flex items-center gap-2"><div className="w-4 h-4 rounded bg-zinc-950 border border-zinc-800 flex items-center justify-center"><span className="text-[10px] text-zinc-800 rotate-45">+</span></div><span className="text-zinc-400">Ocupado</span></div>
                   </div>
                 </div>
